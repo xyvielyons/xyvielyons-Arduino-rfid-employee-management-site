@@ -2,3 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
+.headingone {
+    @apply text-[54px];
+}
+.headingtwo {
+    @apply text-[42px];
+}
+.headingthree {
+    @apply text-[32px];
+}
+.headingfour {
+    @apply text-[24px];
+}
+.headingfive {
+    @apply text-[20px];
+}
+.headingsix {
+    @apply text-[18px];
+}
+
+.bodylarge{
+    @apply text-[18px];
+}
+.bodymedium{
+    @apply text-[16px];
+}
+.bodysmall{
+    @apply text-[14px];
+}
+.bodyextrasmall{
+    @apply text-[12px];
+}
+.bodyextraextrasmall{
+    @apply text-[10px];
+}
+
+.subtitlemedium{
+    @apply text-[16px];
+}
+.subtitlesmall{
+    @apply text-[14px];
+}
+
+.caption{
+    @apply text-[20px];
+}
+.menu{
+    @apply text-[16px];
+}
+
+.buttonlarge{
+    @apply text-[20px];
+}
+.buttonmedium{
+    @apply text-[16px];
+}
+.buttonsmall{
+    @apply text-[14px];
+}
