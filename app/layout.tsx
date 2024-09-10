@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Roboto } from 'next/font/google';
+import { Providers } from "@/lib/providers";
 
 export const metadata: Metadata = {
   title: "Checkin Attendance system",
@@ -22,7 +23,10 @@ export default function RootLayout({
       <body
         className={`roboto.className`}
       >
-        {children}
+            <Providers>
+            {children}
+            </Providers>
+       
       </body>
     </html>
   );

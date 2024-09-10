@@ -1,4 +1,5 @@
 import LeftNavigationBar from "@/components/shared/LeftNavigationBar";
+import HeaderBar from "@/components/shared/HeaderBar";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -10,7 +11,9 @@ export default function RootLayout({
             <LeftNavigationBar/>
           </div>
           <div className="flex w-full flex-col">
-            <div className="w-full h-[64px] border-b-[1px] border-[#E0E0E0]"></div>
+            <div className="w-full h-[64px] border-b-[1px] border-[#E0E0E0] flex items-center justify-end">
+              <HeaderBar/>
+            </div>
             <div className="">{children}</div>
           </div>
       </div>
