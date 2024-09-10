@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Roboto } from 'next/font/google';
 import { Providers } from "@/lib/providers";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton
+} from '@clerk/nextjs'
 
 export const metadata: Metadata = {
   title: "Checkin Attendance system",
@@ -19,15 +26,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`roboto.className`}
-      >
-            <Providers>
-            {children}
-            </Providers>
-       
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`roboto.className`}>
+              <Providers>
+              {children}
+              </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
+    
   );
 }
