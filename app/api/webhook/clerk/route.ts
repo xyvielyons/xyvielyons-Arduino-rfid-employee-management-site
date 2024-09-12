@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import { WebhookEvent, clerkClient } from '@clerk/nextjs/server'
 // import { CreateUser, deleteUser, updateUser } from '@/lib/actions/user.action'
 import { NextResponse } from 'next/server'
-
+import axios from 'axios'
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
@@ -50,57 +50,102 @@ export async function POST(req: Request) {
 
   // Do something with the payload
   // For this guide, you simply log the payload to the console
-  const { id } = evt.data
+  const {id} = evt.data
   const eventType = evt.type
-console.log(evt.data);
+  
+  if(eventType === "user.created"){
+    const {id,email_addresses,username} = evt.data
+    console.log(evt.data)
+    const organization = {
+      clerkId:id,
+      email:email_addresses[0].email_address,
+      username:username!,
+    }
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any other required headers here
+          Authorization: 'Bearer your-token', // Example for authentication
+        },
+      };
+
+      const serverUrl = process.env.EXPRESS_SERVER_URI;
+      const resp = await axios.post(`${serverUrl}/api/arduino/organization/createorganization`,organization,config)
+    
+
+      const databaseId = resp.data.data._id;
+      console.log(databaseId);
+      if(databaseId){
+        await clerkClient.users.updateUserMetadata(id,{
+          publicMetadata:{
+              organizationId:databaseId
+          }
+        })
+      
+
+      }
+            
+          return NextResponse.json({message:'OK',user:resp})
+
+    } catch (error) {
+      console.log(error);
+    }
+
+  }
+
+  if(eventType === 'user.updated'){
+    const {id,email_addresses,username,public_metadata} = evt.data
+    console.log(evt.data)
+    const organization = {
+      id:public_metadata.organizationId,
+      username:username!,
+    }
+    try {
+      const serverUrl = process.env.EXPRESS_SERVER_URI;
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any other required headers here
+          Authorization: 'Bearer your-token', // Example for authentication
+        },
+    };
+    const resp = await axios.post(`${serverUrl}/api/arduino/organization/updateorganization`,organization,config)
+    return NextResponse.json({message:'OK',user:resp})
+    } catch (error) {
+      console.log(error)
+    }
+
+    
+
+   
+  }
+  if(eventType === 'user.deleted'){
+    console.log(evt.data)
+    const {id} = evt.data;
+    const deletedOrganizationId = {
+      id
+    }
+    try {
+      const serverUrl = process.env.EXPRESS_SERVER_URI;
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any other required headers here
+          Authorization: 'Bearer your-token', // Example for authentication
+        },
+    };
+    const resp = await axios.post(`${serverUrl}/api/arduino/organization/deleteorganization`,deletedOrganizationId,config)
+    return NextResponse.json({message:'OK',user:resp})
+    } catch (error) {
+      console.log(error)
+    }
+
+    
+
+   
+  }
 
   
-//   if(eventType === "user.created"){
-//     const {id,email_addresses,image_url,first_name,last_name,username} = evt.data
-//     console.log(evt.data)
-//     const user = {
-//       clerkId:id,
-//       email:email_addresses[0].email_address,
-//       username:username!,
-//       firstName:first_name || '',
-//       lastName:last_name || '',
-//       photo:image_url
-//     }
-    
-//     const newuser = await CreateUser(user);
-
-//     if(newuser){
-//       await clerkClient.users.updateUserMetadata(id,{
-//         publicMetadata:{
-//            userId:newuser._id
-//         }
-//       })
-//     }
-
-//     return NextResponse.json({message:'OK',user:newuser})
-//   }
-
-//   if(eventType === 'user.updated'){
-//     const {id,image_url,first_name,last_name,username} = evt.data
-//     const user = {
-//       firstName:first_name || '',
-//       lastName:last_name || '',
-//       username:username!,
-//       photo:image_url
-//     }
-
-//     const updatedUser = await updateUser(id,user)
-
-//     return NextResponse.json({message:'OK',user:updatedUser})
-//   }
-
-//   if(eventType === 'user.deleted'){
-//     const {id} = evt.data
-
-//     const deletedUser = await deleteUser(id!)
-
-//     return NextResponse.json({message:'OK',user:deletedUser})
-//   }
-
   return new Response('', { status: 200 })
 }
