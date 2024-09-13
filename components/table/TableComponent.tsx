@@ -26,7 +26,14 @@ import {ChevronDownIcon} from "./ChevronDownIcon";
 import {SearchIcon} from "./SearchIcon";
 import {columns, users, statusOptions} from "./data";
 import {capitalize} from "./utils";
-
+import {
+  Modal, 
+  ModalContent, 
+  ModalHeader, 
+  ModalBody, 
+  ModalFooter,
+  useDisclosure
+} from "@nextui-org/react";
 const statusColorMap: Record<string, ChipProps["color"]> = {
   active: "success",
   paused: "danger",
@@ -37,12 +44,13 @@ const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 
 type User = typeof users[0];
 
-export default function TableComponent() {
+export default function TableComponent({callToAction}:{callToAction:string}) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "age",
     direction: "ascending",
@@ -236,11 +244,13 @@ export default function TableComponent() {
             </Dropdown>
             <Button
               className="bg-foreground text-background"
-              endContent={<PlusIcon width="24" height="24" />}
+              startContent={<PlusIcon width="24" height="24" />}
               size="sm"
+              onClick={onOpen}
             >
-              Add New
+              {callToAction}
             </Button>
+           
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -313,7 +323,8 @@ export default function TableComponent() {
   );
 
   return (
-    <Table
+    <div className="">
+<div className=""><Table
       isCompact
       removeWrapper
       aria-label="Example table with custom cells, pagination and sorting"
@@ -352,5 +363,50 @@ export default function TableComponent() {
         )}
       </TableBody>
     </Table>
+    
+    </div>
+      <div className="">
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    <h1>Add new employee</h1>
+                    
+                    </ModalHeader>
+                  <ModalBody>
+                    <p> 
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Nullam pulvinar risus non risus hendrerit venenatis.
+                      Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                    </p>
+                    <p>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Nullam pulvinar risus non risus hendrerit venenatis.
+                      Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                    </p>
+                    <p>
+                      Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit
+                      dolor adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis. 
+                      Velit duis sit officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. 
+                      Et mollit incididunt nisi consectetur esse laborum eiusmod pariatur 
+                      proident Lorem eiusmod et. Culpa deserunt nostrud ad veniam.
+                    </p>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onPress={onClose}>
+                      Close
+                    </Button>
+                    <Button color="primary" onPress={onClose}>
+                      Action
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+      </div>
+    </div>
+    
   );
 }

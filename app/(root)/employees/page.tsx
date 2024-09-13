@@ -9,7 +9,7 @@ const page = () => {
         <p className='bodysmall text-gray-600'>A list of all the registered employees</p>
       </header>
       <main>
-        <TableComponent/>
+        <TableComponent callToAction='Add employee'/>
       </main>
     </div>
   )
