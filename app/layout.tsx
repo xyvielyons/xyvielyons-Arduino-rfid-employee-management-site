@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Roboto } from 'next/font/google';
+import ReduxProvider from "@/redux/ReduxProvider";
 import { Providers } from "@/lib/providers";
 import {
   ClerkProvider,
@@ -29,9 +30,12 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`roboto.className`}>
+          <ReduxProvider>
               <Providers>
-              {children}
+                {children}
               </Providers>
+          </ReduxProvider>
+ 
         </body>
       </html>
     </ClerkProvider>
