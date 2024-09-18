@@ -6,7 +6,8 @@ export const EmployeeFormSchema = z.object({
   lastName: z.string().min(2).max(50),
   email:z.string().email(),
   phoneNumber:z.string().min(6).max(50),
-  idNumber:z.string()
+  idNumber:z.string(),
+  status:z.string()
 })
 
 export const TagsFormSchema = z.object({

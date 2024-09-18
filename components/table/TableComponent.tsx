@@ -1,5 +1,5 @@
 'use client'
-import React from "react";
+import React,{useEffect,useState} from "react";
 import {
   Table,
   TableHeader,
@@ -24,7 +24,7 @@ import {PlusIcon} from "./PlusIcon";
 import {VerticalDotsIcon} from "./VerticalDotsIcon";
 import {ChevronDownIcon} from "./ChevronDownIcon";
 import {SearchIcon} from "./SearchIcon";
-import {columns, users, statusOptions} from "./data";
+import {columns, statusOptions} from "./data";
 import {capitalize} from "./utils";
 import {
   Modal, 
@@ -36,15 +36,23 @@ import {
 } from "@nextui-org/react";
 import StepForm from "../forms/StepForm";
 import Steps from "../forms/Steps";
+import { useQuery,useQueryClient } from "react-query";
+import axios from "axios";
+import { GrView } from "react-icons/gr";
+import Image from "next/image";
+import { AiOutlineDelete } from "react-icons/ai";
+import { toast } from "sonner"
 const statusColorMap: Record<string, ChipProps["color"]> = {
   active: "success",
   paused: "danger",
   vacation: "warning",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["firstName","tagNumber", "status", "actions"];
 
+let users:any = []
 type User = typeof users[0];
+
 
 export default function TableComponent({callToAction}:{callToAction:string}) {
   const [filterValue, setFilterValue] = React.useState("");
@@ -53,10 +61,33 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [employeeDetails, setEmployeeDetails] = useState<any>()
+  const {isOpen:isOpenView, onOpen:onOpenView, onOpenChange:onOpenChangeView} = useDisclosure();
+  const {isOpen:isOpenDelete, onOpen:onOpenDelete, onOpenChange:onOpenChangeDelete} = useDisclosure();
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "age",
     direction: "ascending",
   });
+  const {isLoading,data} = useQuery('getemployees',()=>{
+    return axios.get('http://127.0.0.1:3001/api/arduino/employee/getemployees')
+  },//this is where we set the default caching duration 
+  {
+    cacheTime:5000,//this is in (ms)
+    refetchInterval:5000
+  })
+  
+  const queryClient = useQueryClient()
+  useEffect(() => {
+    if(!isLoading && data){
+      const employeeData = data.data
+      users = [...employeeData]
+    }
+
+  }, [isLoading,data])
+
+
+
+
   const [page, setPage] = React.useState(1);
 
   const pages = Math.ceil(users.length / rowsPerPage);
@@ -74,7 +105,7 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase()),
+        user.firstName.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
@@ -107,15 +138,15 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
     const cellValue = user[columnKey as keyof User];
 
     switch (columnKey) {
-      case "name":
+      case "firstName":
         return (
           <User
-            avatarProps={{radius: "full", size: "sm", src: user.avatar}}
+            avatarProps={{radius: "full", size: "sm", src: user.imageUrl}}
             classNames={{
               description: "text-default-500",
             }}
             description={user.email}
-            name={cellValue}
+            name={`${cellValue} ${user.lastName}`}
           >
             {user.email}
           </User>
@@ -148,9 +179,35 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem>View</DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
+
+                <DropdownItem onClick={()=>{
+                  onOpenView()
+                  setEmployeeDetails(user)
+                }}>
+                  <div className="flex items-center justify-start flex-row space-x-2">
+                      <div className="">
+                        <GrView className="w-[24px] h-[24px] text-gray-600 "/>
+                      </div> 
+                      <div className="">
+                        View employee
+                      </div>
+                  </div>
+                  
+                </DropdownItem>
+                <DropdownItem onClick={()=>{
+                  onOpenDelete()
+                  setEmployeeDetails(user)
+                }}>
+                  <div className="flex items-center justify-start flex-row space-x-2">
+                      <div className="">
+                        <AiOutlineDelete className="w-[24px] h-[24px] text-gray-600 "/>
+                      </div> 
+                      <div className="">
+                        Delete employee
+                      </div>
+                  </div>
+                  
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -185,7 +242,7 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
               base: "w-full sm:max-w-[44%]",
               inputWrapper: "border-1",
             }}
-            placeholder="Search by name..."
+            placeholder="Search by firstname..."
             size="sm"
             startContent={<SearchIcon className="text-default-300" />}
             value={filterValue}
@@ -256,7 +313,7 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {users.length} users</span>
+          <span className="text-default-400 text-small">Total {users.length} employees</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -323,7 +380,30 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
     }),
     [],
   );
+ async function deleteEmployee(employeeId:any){
+  console.log("pressed")
+  const id = {
+    id:employeeId
+  }
+  try {
+    const res = await axios.post('http://127.0.0.1:3001/api/arduino/employee/deleteEmployee',id,{
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer your-token'
+      }
+    });
+    toast("Employee deleted")
+    queryClient.invalidateQueries('getemployees')
 
+    console.log(res)
+  } catch (error) {
+    console.log(error)
+    throw new Error("failed to delete employee")
+  }
+    
+    
+
+ }
   return (
     <div className="">
 <div className=""><Table
@@ -357,9 +437,9 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No users found"} items={sortedItems}>
+      <TableBody emptyContent={"No employees found"} items={sortedItems}>
         {(item) => (
-          <TableRow key={item.id}>
+          <TableRow key={item._id}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
           </TableRow>
         )}
@@ -383,6 +463,62 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
               )}
             </ModalContent>
           </Modal>
+
+          <Modal isOpen={isOpenView} onOpenChange={onOpenChangeView}>
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">Employee Details</ModalHeader>
+                  <ModalBody>
+                    <div className="space-y-2">
+                      <div className="flex flex-row items-center justify-center space-x-2">
+                        <Image src={employeeDetails.imageUrl} alt="profile picture" width={100} height={100} className="rounded-full"></Image>
+                        <div className="">
+                          <p className="headingsix font-medium text-gray-800">{`${employeeDetails.firstName} ${employeeDetails.lastName}`}</p>
+                          <p className="text-gray-600">{`${employeeDetails.email}`}</p>
+                        </div>
+                      </div>
+                      <div className="pl-8">
+                        <p className="text-gray-600 font-medium">Tag Number:<span className="ml-2 text-gray-800">{employeeDetails.tagNumber}</span></p>
+                        <p className="text-gray-600 font-medium">Id Number:<span className="ml-2 text-gray-800">{employeeDetails.idNumber}</span></p>
+                        <p className="text-gray-600 font-medium">status:<span className="ml-2 text-gray-800">{employeeDetails.status}</span></p>
+                      </div>
+
+                    </div>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onPress={onClose}>
+                      Close
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+          <Modal isOpen={isOpenDelete} onOpenChange={onOpenChangeDelete}>
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">Delete employee</ModalHeader>
+                  <ModalBody>
+                    <p>Are you sure you would like to delete the employee <span className="headingsix font-medium text-gray-600">{`${employeeDetails.firstName} ${employeeDetails.lastName}`}</span></p>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onClick={()=>{
+                      deleteEmployee(employeeDetails._id)
+                      onClose()
+                    }}>
+                      Delete
+                    </Button>
+                    <Button color="default" variant="light" onPress={onClose}>
+                      close
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+         
       </div>
     </div>
     

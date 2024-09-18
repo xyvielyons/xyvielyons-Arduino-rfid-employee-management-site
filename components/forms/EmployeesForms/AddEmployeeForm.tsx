@@ -30,7 +30,8 @@ const formData = useAppSelector((state)=>state.AddEmployee.formData)
   const form = useForm<z.infer<typeof EmployeeFormSchema>>({
     resolver: zodResolver(EmployeeFormSchema),
     defaultValues: {
-      ...formData
+      ...formData,
+      status:"active"
     },
   })
 
