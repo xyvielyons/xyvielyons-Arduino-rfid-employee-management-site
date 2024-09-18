@@ -25,11 +25,15 @@ const AddEmployeeSlice = createSlice({
             ...state.formData,
             ...action.payload
         }
+    },
+    deleteFormData:(state)=>{
+      state.formData = {}
+      state.currentStep = 1
     }
   },
 });
 
 //export the reducers from counterSlice.actions
-export const { setCurrentStep, updateFormData } = AddEmployeeSlice.actions;
+export const { setCurrentStep, updateFormData,deleteFormData } = AddEmployeeSlice.actions;
 //export the counterSlice.reducer
 export default AddEmployeeSlice.reducer;

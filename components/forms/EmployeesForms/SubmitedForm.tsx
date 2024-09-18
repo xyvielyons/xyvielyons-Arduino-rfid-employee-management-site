@@ -4,7 +4,8 @@ import { useAppSelector } from '@/redux/hooks'
 const SubmitedForm = ({closeTrigger}:{closeTrigger:any}) => {
   const FormData = useAppSelector((state)=>state.AddEmployee.formData)
   const data = JSON.stringify(FormData,null,2)
-
+  const serverUrl = process.env.EXPRESS_SERVER_URI
+  console.log(serverUrl)
   return (
     <div>
       <div className="">

@@ -3,6 +3,10 @@ import "./globals.css";
 import { Roboto } from 'next/font/google';
 import ReduxProvider from "@/redux/ReduxProvider";
 import { Providers } from "@/lib/providers";
+import { Toaster } from "@/components/ui/sonner"
+import dotenv from 'dotenv';
+
+dotenv.config();
 import {
   ClerkProvider,
   SignInButton,
@@ -35,6 +39,7 @@ export default function RootLayout({
                 {children}
               </Providers>
           </ReduxProvider>
+          <Toaster />
  
         </body>
       </html>
