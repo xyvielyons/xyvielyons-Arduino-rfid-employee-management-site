@@ -346,7 +346,7 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
       onSelectionChange={setSelectedKeys}
       onSortChange={setSortDescriptor}
     >
-      <TableHeader columns={headerColumns}>
+      <TableHeader columns={headerColumns} className="">
         {(column) => (
           <TableColumn
             key={column.uid}
@@ -376,17 +376,9 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
                     <Steps/>
                     
                     </ModalHeader>
-                  <ModalBody>
+                  <ModalBody className="pb-4">
                     <StepForm closeTrigger={onClose}/>
                   </ModalBody>
-                  <ModalFooter>
-                    {/* <Button color="danger" variant="light" onPress={onClose}>
-                      Close
-                    </Button>
-                    <Button color="primary" onPress={onClose}>
-                      Action
-                    </Button> */}
-                  </ModalFooter>
                 </>
               )}
             </ModalContent>
