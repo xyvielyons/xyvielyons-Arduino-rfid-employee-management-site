@@ -20,18 +20,21 @@ import EmployeeNavButtons from '@/components/shared/EmployeeNavButtons'
 import { useAppDispatch,useAppSelector } from "@/redux/hooks"
 import { setCurrentStep,updateFormData } from "@/redux/slices/AddEmployeeSlice"
 import React from 'react'
-
+import { useUser } from '@clerk/clerk-react'
 const AddEmployeeForm = () => {
 const dispatch = useAppDispatch()
 const currentStep:any = useAppSelector((state)=>state.AddEmployee.currentStep)
 const formData = useAppSelector((state)=>state.AddEmployee.formData)
-
+const currentsessiondata = useUser()
+// console.log(currentsessiondata?.user?.publicMetadata.organizationId)
+let organizationId = currentsessiondata?.user?.publicMetadata.organizationId
   // 1. Define your form.
   const form = useForm<z.infer<typeof EmployeeFormSchema>>({
     resolver: zodResolver(EmployeeFormSchema),
     defaultValues: {
       ...formData,
-      status:"active"
+      status:"active",
+      organizationId:organizationId
     },
   })
 

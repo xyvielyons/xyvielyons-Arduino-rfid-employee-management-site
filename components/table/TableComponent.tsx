@@ -52,6 +52,7 @@ const INITIAL_VISIBLE_COLUMNS = ["firstName","tagNumber", "status", "actions"];
 
 let users:any = []
 type User = typeof users[0];
+import { useUser } from '@clerk/clerk-react'
 
 
 export default function TableComponent({callToAction}:{callToAction:string}) {
@@ -68,8 +69,11 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
     column: "age",
     direction: "ascending",
   });
+  const {user} = useUser()
   const {isLoading,data} = useQuery('getemployees',()=>{
-    return axios.get('http://127.0.0.1:3001/api/arduino/employee/getemployees')
+    return axios.post('http://127.0.0.1:3001/api/arduino/employee/getemployees',{
+      organizationId:user?.publicMetadata.organizationId
+    })
   },//this is where we set the default caching duration 
   {
     cacheTime:5000,//this is in (ms)
