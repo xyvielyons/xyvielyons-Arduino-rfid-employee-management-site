@@ -400,6 +400,7 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
   return (
     <div className="">
 <div className=""><Table
+      isStriped
       isCompact
       removeWrapper
       aria-label="Example table with custom cells, pagination and sorting"

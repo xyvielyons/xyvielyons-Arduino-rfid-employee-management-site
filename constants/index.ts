@@ -14,11 +14,7 @@ export const LeftNavigationConstants = [
     {
         label:"Checkouts",
         route:'/checkouts'
-    },
-    {
-        label:"Health Check",
-        route:'/healthcheck'
-    },
+    }
 ]
 export const steps = [
     {
