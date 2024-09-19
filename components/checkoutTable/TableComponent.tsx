@@ -70,8 +70,8 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
     direction: "ascending",
   });
   const {user} = useUser()
-  const {isLoading,data} = useQuery('getcheckedinemployees',()=>{
-    return axios.post('http://127.0.0.1:3001/api/arduino/checkin/getcheckin',{
+  const {isLoading,data} = useQuery('getcheckedoutemployees',()=>{
+    return axios.post('http://127.0.0.1:3001/api/arduino/checkout/getcheckout',{
       organizationId:user?.publicMetadata.organizationId
     })
   },//this is where we set the default caching duration 
@@ -379,13 +379,13 @@ export default function TableComponent({callToAction}:{callToAction:string}) {
     checkinId:employeeId
   }
   try {
-    const res = await axios.post('http://127.0.0.1:3001/api/arduino/checkin/deletecheckin',id,{
+    const res = await axios.post('http://127.0.0.1:3001/api/arduino/checkout/deletecheckout',id,{
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer your-token'
       }
     });
-    toast("Employee deleted")
+    toast("Employee checkout deleted")
     queryClient.invalidateQueries('getemployees')
 
     console.log(res)
